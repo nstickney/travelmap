@@ -305,6 +305,14 @@ function getLatestTimestamp(location) {
     return dates.length > 0 ? Math.max(...dates) : 0;
 }
 
+// Get unique visitors for a location
+function getUniqueVisitors(location) {
+    const visitorsSet = new Set();
+    if (location.lived) location.lived.forEach(l => l.visitors?.forEach(v => visitorsSet.add(v)));
+    if (location.visits) location.visits.forEach(v => v.visitors?.forEach(p => visitorsSet.add(p)));
+    return Array.from(visitorsSet);
+}
+
 // Fetch people config, then locations and add markers
 fetch('people.json')
     .then(response => response.json())
@@ -315,17 +323,24 @@ fetch('people.json')
     })
     .then(response => response.json())
     .then(data => {
-        data.sort((a, b) => getLatestTimestamp(a) - getLatestTimestamp(b));
+        // Sort by visitor count (ASC) then by latest timestamp (ASC)
+        // This ensures markers with more people and more recent dates are processed later 
+        // and thus receive a higher z-index offset in applyFilters.
+        data.sort((a, b) => {
+            const visitorsA = getUniqueVisitors(a);
+            const visitorsB = getUniqueVisitors(b);
+            
+            if (visitorsA.length !== visitorsB.length) {
+                return visitorsA.length - visitorsB.length;
+            }
+            return getLatestTimestamp(a) - getLatestTimestamp(b);
+        });
 
         data.forEach(location => {
             const livedEntries = location.lived || [];
             const isLived = livedEntries.length > 0;
             
-            const visitorsSet = new Set();
-            if (location.lived) location.lived.forEach(l => l.visitors?.forEach(v => visitorsSet.add(v)));
-            if (location.visits) location.visits.forEach(v => v.visitors?.forEach(p => visitorsSet.add(p)));
-            
-            const allVisitors = Array.from(visitorsSet);
+            const allVisitors = getUniqueVisitors(location);
             
             const icon = getMarkerIcon(allVisitors, isLived);
             const marker = L.marker([location.lat, location.lng], { icon: icon }).addTo(map);
