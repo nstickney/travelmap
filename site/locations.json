@@ -1,0 +1,99 @@
+[
+    {
+        "name": "Grand Canyon National Park, United States",
+        "lat": 36.3078548,
+        "lng": -112.292896,
+        "lived": [],
+        "visits": [
+            {
+                "visitors": [
+                    "Third Person"
+                ],
+                "date": "2009"
+            }
+        ]
+    },
+    {
+        "name": "Palo Alto, United States",
+        "lat": 37.4443293,
+        "lng": -122.1598465,
+        "lived": [
+            {
+                "visitors": [
+                    "Another Person",
+                    "Third Person"
+                ],
+                "start": "2001-02-14",
+                "end": "2020-03-27"
+            }
+        ],
+        "visits": []
+    },
+    {
+        "name": "Paris, France",
+        "lat": 48.8534951,
+        "lng": 2.3483915,
+        "lived": [],
+        "visits": [
+            {
+                "visitors": [
+                    "You",
+                    "Another Person"
+                ],
+                "date": "2017-07-18"
+            }
+        ]
+    },
+    {
+        "name": "Sydney, Australia",
+        "lat": -33.8698439,
+        "lng": 151.2082848,
+        "lived": [
+            {
+                "visitors": [
+                    "You",
+                    "Another Person"
+                ],
+                "start": "2011-08-01"
+            }
+        ],
+        "visits": [
+            {
+                "visitors": [
+                    "Third Person"
+                ],
+                "date": "2019-06"
+            }
+        ]
+    },
+    {
+        "name": "Unknown Location, \u0425\u0430\u0440\u0445\u043e\u0440\u0438\u043d \u182c\u1820\u1837\u180e\u1820 \u182c\u1823\u1837\u1822\u1828, \u041c\u043e\u043d\u0433\u043e\u043b \u0443\u043b\u0441 \u182e\u1824\u1829\u182d\u1824\u182f \u1824\u182f\u1824\u1830",
+        "lat": 47.1986184,
+        "lng": 102.8245513,
+        "lived": [],
+        "visits": [
+            {
+                "visitors": [
+                    "You",
+                    "Another Person",
+                    "Third Person"
+                ],
+                "date": "2021-01"
+            }
+        ]
+    },
+    {
+        "name": "Kenya Wildlife Service Officers Mess, Nairobi, Kenya",
+        "lat": -1.3409981,
+        "lng": 36.7929272,
+        "lived": [],
+        "visits": [
+            {
+                "visitors": [
+                    "You"
+                ],
+                "date": "1999-05"
+            }
+        ]
+    }
+]
