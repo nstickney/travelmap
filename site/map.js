@@ -102,6 +102,7 @@ const legend = L.control({ position: 'bottomleft' });
 
 function applyFilters() {
     const isFiltering = selectedVisitors.size > 0;
+    const selectedArray = Array.from(selectedVisitors);
     allMarkers.forEach((marker, index) => {
         if (!isFiltering) {
             marker.setOpacity(1.0);
@@ -109,7 +110,7 @@ function applyFilters() {
             // Using index ensures newer items (later in allMarkers) are on top
             marker.setZIndexOffset(index);
         } else {
-            const hasMatch = marker.visitors.some(v => selectedVisitors.has(v));
+            const hasMatch = selectedArray.every(v => marker.visitors.includes(v));
             marker.setOpacity(hasMatch ? 1.0 : 0.2);
             
             // If it matches, put it in a much higher "layer" (100,000 boost)
