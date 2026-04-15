@@ -97,9 +97,6 @@ const baseMaps = {
 // Add the layer control menu to the map
 L.control.layers(baseMaps).addTo(map);
 
-// Add the legend dynamically using Leaflet Control
-const legend = L.control({ position: 'bottomleft' });
-
 function applyFilters() {
     const isFiltering = selectedVisitors.size > 0;
     const selectedArray = Array.from(selectedVisitors);
@@ -120,63 +117,81 @@ function applyFilters() {
     });
 }
 
-function updateLegendVisuals() {
-    document.querySelectorAll('.legend-item').forEach(item => {
-        const name = item.querySelector('span').textContent;
-        if (selectedVisitors.has(name)) {
-            item.classList.add('active');
-        } else {
-            item.classList.remove('active');
-        }
-    });
+// Define a custom Legend Control
+L.Control.Legend = L.Control.extend({
+    options: {
+        position: 'bottomleft'
+    },
 
-    const clearBtn = document.querySelector('.clear-filter-btn');
-    if (clearBtn) {
-        if (selectedVisitors.size > 0) {
-            clearBtn.classList.add('visible');
-        } else {
-            clearBtn.classList.remove('visible');
+    initialize: function (familyColors, options) {
+        L.Util.setOptions(this, options);
+        this._familyColors = familyColors;
+    },
+
+    onAdd: function (map) {
+        this._container = L.DomUtil.create('div', 'leaflet-control-legend leaflet-bar leaflet-control');
+        this._container.id = 'legend';
+        this._render();
+        this._initEvents();
+        return this._container;
+    },
+
+    _render: function () {
+        this._container.innerHTML = Object.entries(this._familyColors).map(([name, color]) => `
+            <div class="legend-item" data-visitor="${name}">
+                <div class="legend-color" style="background: ${color}"></div>
+                <span>${name}</span>
+            </div>
+        `).join('') + `
+            <button class="clear-filter-btn">Clear Filter</button>
+        `;
+    },
+
+    _initEvents: function () {
+        L.DomEvent.on(this._container, 'click', (e) => {
+            const item = e.target.closest('.legend-item');
+            if (item) {
+                const visitor = item.getAttribute('data-visitor');
+                if (selectedVisitors.has(visitor)) {
+                    selectedVisitors.delete(visitor);
+                } else {
+                    selectedVisitors.add(visitor);
+                }
+                applyFilters();
+                this.update();
+                return;
+            }
+
+            if (e.target.classList.contains('clear-filter-btn')) {
+                selectedVisitors.clear();
+                applyFilters();
+                this.update();
+            }
+        });
+    },
+
+    update: function () {
+        this._container.querySelectorAll('.legend-item').forEach(item => {
+            const name = item.querySelector('span').textContent;
+            if (selectedVisitors.has(name)) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
+
+        const clearBtn = this._container.querySelector('.clear-filter-btn');
+        if (clearBtn) {
+            if (selectedVisitors.size > 0) {
+                clearBtn.classList.add('visible');
+            } else {
+                clearBtn.classList.remove('visible');
+            }
         }
     }
-}
+});
 
-legend.onAdd = function (map) {
-    const div = L.DomUtil.create('div', 'info legend');
-    div.id = 'legend';
-    
-    div.innerHTML = Object.entries(familyColors).map(([name, color]) => `
-        <div class="legend-item" data-visitor="${name}">
-            <div class="legend-color" style="background: ${color}"></div>
-            <span>${name}</span>
-        </div>
-    `).join('') + `
-        <button class="clear-filter-btn">Clear Filter</button>
-    `;
-    
-    // Use event delegation for clicks
-    div.addEventListener('click', (e) => {
-        const item = e.target.closest('.legend-item');
-        if (item) {
-            const visitor = item.getAttribute('data-visitor');
-            if (selectedVisitors.has(visitor)) {
-                selectedVisitors.delete(visitor);
-            } else {
-                selectedVisitors.add(visitor);
-            }
-            applyFilters();
-            updateLegendVisuals();
-            return;
-        }
-
-        if (e.target.classList.contains('clear-filter-btn')) {
-            selectedVisitors.clear();
-            applyFilters();
-            updateLegendVisuals();
-        }
-    });
-    
-    return div;
-};
+let legend; // Will be initialized after fetching people.json
 
 
 // Function to generate a multi-colored marker icon
@@ -319,7 +334,7 @@ fetch('people.json')
     .then(response => response.json())
     .then(people => {
         familyColors = people;
-        legend.addTo(map);
+        legend = new L.Control.Legend(people).addTo(map);
         return fetch('locations.json');
     })
     .then(response => response.json())
